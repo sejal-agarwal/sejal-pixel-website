@@ -1,0 +1,9 @@
+Pixelated Elegance by GGBotNet (Hebrew support by Niv Baehr)
+https://ggbot.itch.io/pixelated-elegance-font
+
+License: CC0 1.0 Universal (public domain). Free for personal and
+commercial use, no attribution required. Credited here anyway out of
+courtesy.
+
+Downloaded as a .woff via fonts.cdnfonts.com (covers full printable
+ASCII — letters, numbers, punctuation).

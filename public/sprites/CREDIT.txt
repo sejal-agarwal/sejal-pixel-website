@@ -1,0 +1,7 @@
+Sprites in this folder are a subset of "Little Dreamyland - Free Pack"
+by Starmixu & Utaskuas: https://starmixu.itch.io/little-dreamyland-asset-pack
+
+Used under the pack's free license (non-commercial, modification allowed,
+redistribution of the pack itself is not). This subset is committed here
+because only the files actually used by the site are included — the full
+pack is gitignored. Credit is also shown in the site footer.

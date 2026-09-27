@@ -1,0 +1,26 @@
+@import "tailwindcss";
+
+:root {
+  --color-cream: #fdf6e8;
+  --color-ink: #3a2e26;
+}
+
+@theme inline {
+  --color-cream: var(--color-cream);
+  --color-ink: var(--color-ink);
+  --font-pixel: var(--font-pixel);
+  --font-body: var(--font-body);
+}
+
+body {
+  background: var(--color-cream);
+  color: var(--color-ink);
+  font-family: var(--font-body), sans-serif;
+}
+
+/* Pixel art rendering: crisp, unfiltered edges when scaled */
+.pixelated {
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+}
