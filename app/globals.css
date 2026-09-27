@@ -3,6 +3,23 @@
 :root {
   --color-cream: #fdf6e8;
   --color-ink: #3a2e26;
+
+  /* Integer pixel-art scale: phones get 3x, tablets/laptops 4x, wide
+     desktops 5x. Kept as a whole number so sprite edges stay crisp — see
+     the `.sprite` rule below and useMediaQuery-driven layout later on. */
+  --px: 3;
+}
+
+@media (min-width: 640px) {
+  :root {
+    --px: 4;
+  }
+}
+
+@media (min-width: 1600px) {
+  :root {
+    --px: 5;
+  }
 }
 
 @theme inline {
@@ -20,6 +37,30 @@ body {
 
 /* Pixel art rendering: crisp, unfiltered edges when scaled */
 .pixelated {
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+}
+
+/*
+ * Renders one frame of a sprite sheet as a background-image, scaled to an
+ * integer multiple of its native pixel size via --px. Each <Sprite> sets
+ * --sprite-url/--frame-w/--frame-h/--sheet-cols/--sheet-rows/--frame-col/
+ * --frame-row inline; this rule does the crop + scale math.
+ */
+.sprite {
+  display: block;
+  flex-shrink: 0;
+  width: calc(var(--frame-w) * var(--px) * 1px);
+  height: calc(var(--frame-h) * var(--px) * 1px);
+  background-image: var(--sprite-url);
+  background-repeat: no-repeat;
+  background-size:
+    calc(var(--frame-w) * var(--sheet-cols) * var(--px) * 1px)
+    calc(var(--frame-h) * var(--sheet-rows) * var(--px) * 1px);
+  background-position:
+    calc(var(--frame-col) * var(--frame-w) * var(--px) * -1px)
+    calc(var(--frame-row) * var(--frame-h) * var(--px) * -1px);
   image-rendering: pixelated;
   image-rendering: -moz-crisp-edges;
   image-rendering: crisp-edges;

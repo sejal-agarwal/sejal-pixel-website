@@ -1,4 +1,5 @@
 import { site } from "@/content/site";
+import { SpriteTestGrid } from "@/components/dev/SpriteTestGrid";
 
 // Temporary CP1 placeholder — confirms fonts, Tailwind, and the build
 // pipeline work end to end. Replaced by the real landing scene in later
@@ -15,6 +16,8 @@ export default function Home() {
       <p className="mt-8 font-[family-name:var(--font-pixel)] text-[9px] leading-relaxed text-[var(--color-ink)]/50">
         landing scene coming in the next checkpoint
       </p>
+
+      <SpriteTestGrid />
     </main>
   );
 }
