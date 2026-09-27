@@ -3,10 +3,14 @@
 :root {
   --color-cream: #fdf6e8;
   --color-ink: #3a2e26;
+  /* Sampled from the pack's grass tiles (Autotile_Grass_and_Dirt_Path). */
+  --color-grass: #afc259;
 
   /* Integer pixel-art scale: phones get 3x, tablets/laptops 4x, wide
      desktops 5x. Kept as a whole number so sprite edges stay crisp — see
-     the `.sprite` rule below and useMediaQuery-driven layout later on. */
+     the `.sprite` rule below. The landing scene's desktop/mobile path
+     layouts switch at the same 640px breakpoint via plain CSS (see
+     LandingScene), so there's no JS media-query hook to keep in sync. */
   --px: 3;
 }
 
@@ -25,6 +29,7 @@
 @theme inline {
   --color-cream: var(--color-cream);
   --color-ink: var(--color-ink);
+  --color-grass: var(--color-grass);
   --font-pixel: var(--font-pixel);
   --font-body: var(--font-body);
 }

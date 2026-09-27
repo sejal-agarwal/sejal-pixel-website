@@ -54,6 +54,26 @@ export const sheets = {
     // lid lifting (2-4) -> open (5-6).
     rows: 2,
   },
+  autotile: {
+    src: "/sprites/tileset/Autotile_Grass_and_Dirt_Path_Tileset.png",
+    frameW: 16,
+    frameH: 16,
+    cols: 21,
+    rows: 11,
+  },
+  // Not part of the original pack — generated to match its palette and
+  // border style (see scripts/generate-concave-corners.py) because the
+  // source sheet only ships convex corner pieces. Used for the inside
+  // corner of a path bend, where a "fill" cell's diagonal neighbor is
+  // grass even though all 4 orthogonal neighbors are path. Frame order:
+  // NE, NW, SE, SW.
+  autotileConcave: {
+    src: "/sprites/tileset/Path_Concave_Corners.png",
+    frameW: 16,
+    frameH: 16,
+    cols: 4,
+    rows: 1,
+  },
 } as const satisfies Record<string, SpriteSheet>;
 
 export type SheetName = keyof typeof sheets;
