@@ -24,6 +24,42 @@ export const directionRow: Record<Direction, number> = {
 };
 
 export const sheets = {
+  // Static decorations — each is a single irregular crop taken directly
+  // from the pack's tilesets (not grid-aligned, since organic art like
+  // trees and rooflines overflows the 16px tile grid). Cropped once into
+  // its own trimmed PNG under public/sprites/decor/ rather than teaching
+  // <Sprite> to address an arbitrary sub-rect of a shared sheet.
+  // A reference house image the user supplied directly (green roof),
+  // not cropped from House_Tileset.png. See scripts/generate-house.py
+  // and scripts/assets/house-source.png.
+  house: { src: "/sprites/decor/house.png", frameW: 84, frameH: 96, cols: 1, rows: 1 },
+  bushTree: { src: "/sprites/decor/bush-tree.png", frameW: 30, frameH: 36, cols: 1, rows: 1 },
+  pineTree: { src: "/sprites/decor/pine-tree.png", frameW: 22, frameH: 32, cols: 1, rows: 1 },
+  rock: { src: "/sprites/decor/rock.png", frameW: 24, frameH: 24, cols: 1, rows: 1 },
+  stump: { src: "/sprites/decor/stump.png", frameW: 24, frameH: 26, cols: 1, rows: 1 },
+  lamp: { src: "/sprites/decor/lamp.png", frameW: 9, frameH: 18, cols: 1, rows: 1 },
+  sign: { src: "/sprites/decor/sign.png", frameW: 14, frameH: 30, cols: 1, rows: 1 },
+  fenceCorral: { src: "/sprites/decor/fence-corral.png", frameW: 60, frameH: 56, cols: 1, rows: 1 },
+  flowerPurple: { src: "/sprites/decor/flower-purple.png", frameW: 11, frameH: 18, cols: 1, rows: 1 },
+  flowerWhite: { src: "/sprites/decor/flower-white.png", frameW: 26, frameH: 11, cols: 1, rows: 1 },
+  grassTuft: { src: "/sprites/decor/grass-tuft.png", frameW: 17, frameH: 12, cols: 1, rows: 1 },
+  cropGrown: { src: "/sprites/decor/crop-grown.png", frameW: 9, frameH: 9, cols: 1, rows: 1 },
+
+  chickenIdle: {
+    src: "/sprites/animals/chicken/Chicken_Idle.png",
+    frameW: 48,
+    frameH: 48,
+    cols: 8,
+    rows: 4, // row 0 = front-facing idle bob (confirmed visually)
+  },
+  cowIdle: {
+    src: "/sprites/animals/cow/Cow_Idle.png",
+    frameW: 48,
+    frameH: 48,
+    cols: 8,
+    rows: 4,
+  },
+
   bunnyIdle: {
     src: "/sprites/characters/bunny/Bunny_Idle.png",
     frameW: 48,

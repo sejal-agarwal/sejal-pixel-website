@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import type { CSSProperties } from "react";
 import { Sprite } from "./Sprite";
 import type { SpriteSheet } from "@/lib/sprites";
 
@@ -12,6 +13,7 @@ type AnimatedSpriteProps = {
   frameCount?: number;
   fps?: number;
   className?: string;
+  style?: CSSProperties;
   alt?: string;
   /** Pauses on the first frame when false. Default true. */
   playing?: boolean;
@@ -28,6 +30,7 @@ export function AnimatedSprite({
   frameCount,
   fps = 8,
   className,
+  style,
   alt,
   playing = true,
 }: AnimatedSpriteProps) {
@@ -61,5 +64,7 @@ export function AnimatedSprite({
     };
   }, [playing, fps, count]);
 
-  return <Sprite sheet={sheet} col={frame} row={row} className={className} alt={alt} />;
+  return (
+    <Sprite sheet={sheet} col={frame} row={row} className={className} style={style} alt={alt} />
+  );
 }

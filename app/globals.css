@@ -70,3 +70,33 @@ body {
   image-rendering: -moz-crisp-edges;
   image-rendering: crisp-edges;
 }
+
+/*
+ * A wooden-plank texture for the navbar: vertical plank seams (repeating
+ * gradient) plus a subtle top-to-bottom grain, colors sampled from the
+ * house sprite's wall so it matches the scene below it.
+ */
+.plank-bg {
+  background-color: #8e553b;
+  background-image:
+    linear-gradient(
+      to bottom,
+      rgb(255 255 255 / 12%),
+      rgb(255 255 255 / 12%) 6%,
+      transparent 6%,
+      transparent 94%,
+      rgb(0 0 0 / 18%) 94%
+    ),
+    repeating-linear-gradient(
+      90deg,
+      #b97455 0,
+      #b97455 46px,
+      #8e553b 46px,
+      #8e553b 48px,
+      #7d4b33 48px,
+      #7d4b33 50px,
+      #8e553b 50px,
+      #8e553b 96px
+    );
+  border-bottom: 3px solid #494040;
+}
