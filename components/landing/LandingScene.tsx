@@ -22,6 +22,11 @@ import {
   mobileGrid,
   mobileDecor,
   mobileBillboard,
+  mobileBunnyHome,
+  desktopObstacles,
+  tabletWideObstacles,
+  tabletNarrowObstacles,
+  mobileObstacles,
   type TileCoord,
   type PathGrid,
   type DecorItem,
@@ -64,7 +69,13 @@ export function LandingScene() {
         billboard={desktopBillboard}
         className="hidden xl:block"
       >
-        <BunnyRoutine home={bunnyHome} sign={bunnyBillboardStop} />
+        <BunnyRoutine
+          home={bunnyHome}
+          sign={bunnyBillboardStop}
+          path={desktopPath}
+          bounds={desktopGrid}
+          obstacles={desktopObstacles}
+        />
       </SceneCanvas>
       {/* Tablet, wide: same billboard+house composition as desktop, minus
           the tree — see tabletWideDecor's doc in landingMap.ts. */}
@@ -75,7 +86,13 @@ export function LandingScene() {
         billboard={desktopBillboard}
         className="hidden lg:block xl:hidden"
       >
-        <BunnyRoutine home={bunnyHome} sign={bunnyBillboardStop} />
+        <BunnyRoutine
+          home={bunnyHome}
+          sign={bunnyBillboardStop}
+          path={tabletWidePath}
+          bounds={tabletWideGrid}
+          obstacles={tabletWideObstacles}
+        />
       </SceneCanvas>
       {/* Tablet, narrow: minus the clothesline/corral/cow too — see
           tabletNarrowDecor's doc. The last tier with the billboard
@@ -87,7 +104,13 @@ export function LandingScene() {
         billboard={desktopBillboard}
         className="hidden min-[840px]:block lg:hidden"
       >
-        <BunnyRoutine home={bunnyHome} sign={bunnyBillboardStop} />
+        <BunnyRoutine
+          home={bunnyHome}
+          sign={bunnyBillboardStop}
+          path={tabletNarrowPath}
+          bounds={tabletNarrowGrid}
+          obstacles={tabletNarrowObstacles}
+        />
       </SceneCanvas>
       <SceneCanvas
         path={mobilePath}
@@ -95,7 +118,18 @@ export function LandingScene() {
         decor={mobileDecor}
         billboard={mobileBillboard}
         className="min-[840px]:hidden"
-      />
+      >
+        {/* No scripted watering stop on the stacked mobile layout — the
+            billboard sits above the house, not beside it, so there's no
+            level walk to a flower bed. Scroll/arrow keys still work. */}
+        <BunnyRoutine
+          home={mobileBunnyHome}
+          sign={mobileBunnyHome}
+          path={mobilePath}
+          bounds={mobileGrid}
+          obstacles={mobileObstacles}
+        />
+      </SceneCanvas>
     </section>
   );
 }

@@ -12,7 +12,12 @@
 // deliberately sparse (just the house and one tree) since there's no
 // room to spread decor sideways there the way desktop can.
 
+import { sheets, type SheetName } from "@/lib/sprites";
+
 export type TileCoord = [col: number, row: number];
+
+/** An axis-aligned box in tile units, used for bunny collision. */
+export type Rect = { x0: number; y0: number; x1: number; y1: number };
 
 export type PathGrid = {
   /** Tile columns the centered scene canvas spans (for width/centering). */
@@ -91,6 +96,52 @@ export type DecorItem = {
    */
   scale?: number;
 };
+
+// Sheets solid enough that the bunny shouldn't be able to walk through
+// them when driven by scroll/arrow keys — the small ground-texture
+// scatter (loose flowers, grass tufts, speckles) stays walkable, but the
+// planter boxes are raised wooden crates, not flat ground cover.
+const collidableSheets = new Set<SheetName>([
+  "house",
+  "bushTree",
+  "pineTree",
+  "rock",
+  "stump",
+  "fenceCorral",
+  "planterYellow",
+  "planterBlue",
+  "clothesline",
+  "lamp",
+  "sign",
+]);
+
+/** Obstacle boxes for every collidable decor item, in tile units. */
+function decorObstacles(decor: DecorItem[]): Rect[] {
+  return decor
+    .filter((item) => collidableSheets.has(item.sheet as SheetName))
+    .map((item) => {
+      const sheet = sheets[item.sheet as SheetName];
+      const w = (sheet.frameW / 16) * (item.scale ?? 1);
+      const h = (sheet.frameH / 16) * (item.scale ?? 1);
+      return { x0: item.x, y0: item.y, x1: item.x + w, y1: item.y + h };
+    });
+}
+
+/**
+ * All obstacle boxes for a scene tier — the collidable decor plus the
+ * billboard itself (not a DecorItem, so it's boxed separately using its
+ * own x/y/width/height). Used by BunnyRoutine to keep arrow-key/scroll
+ * movement from walking through solid scenery.
+ */
+export function sceneObstacles(
+  decor: DecorItem[],
+  billboard: { x: number; y: number; width: number; height: number },
+): Rect[] {
+  return [
+    ...decorObstacles(decor),
+    { x0: billboard.x, y0: billboard.y, x1: billboard.x + billboard.width, y1: billboard.y + billboard.height },
+  ];
+}
 
 // House sprite is 84x96px (5.25 x 6 tiles); centered over the
 // 2-tile-wide path with its base a little past the path's start row.
@@ -256,6 +307,7 @@ export const desktopBillboard = {
   x: 0.3,
   y: houseY + houseH - desktopBillboardHeightTiles,
   width: billboardW,
+  height: desktopBillboardHeightTiles,
 };
 
 // The BunnyRoutine's two stops (see LandingScene.tsx): its usual spot on
@@ -265,7 +317,7 @@ export const desktopBillboard = {
 // planter-watering spot was (see the old commit): the watering stream
 // pours from partway down the bunny's frame, so standing level with the
 // flowers would send it past them onto the grass beyond.
-export const bunnyHome = { x: desktopCenterCol - 0.5, y: houseY + houseH + 0.1 };
+export const bunnyHome = { x: desktopCenterCol - 0.5, y: houseY + houseH - 0.5 };
 export const bunnyBillboardStop = { x: 2.75, y: 5.9 };
 // Margin trimmed from 1.5 to 0.8 (0.4 a side) now that the type is
 // bigger, so the board claims more of the narrow grid instead of
@@ -284,6 +336,7 @@ export const mobileBillboard = {
   x: (mobileGrid.cols - mobileBillboardW) / 2,
   y: mobileTopGap,
   width: mobileBillboardW,
+  height: mobileBillboardHeightTiles,
 };
 
 // Everything below the billboard on the mobile/tablet stack hangs off
@@ -312,6 +365,12 @@ const mobileHouseBottom = mobileHouseY + houseH * mobileHouseScale;
 // one rather than tracking mobileHouseBottom exactly.
 const mobilePathStartRow = Math.floor(mobileHouseBottom) - 1;
 export const mobilePath: TileCoord[] = rect(mobileCenterCol, mobilePathStartRow, 2, 4);
+
+// Where the mobile-stack bunny starts/idles — just past the house's
+// (scaled) bottom edge, nudged up a bit closer to the door (scaled down
+// from the desktop tier's own raise, since the house itself is smaller
+// here — see mobileHouseScale).
+export const mobileBunnyHome = { x: mobileCenterCol - 0.5, y: mobileHouseBottom - 0.15 };
 
 // On the narrow mobile grid the house nearly fills the width, so there's
 // no room to flank it with trees the way the desktop layout does —
@@ -352,18 +411,10 @@ export const mobileDecor: DecorItem[] = [
   { sheet: "planterYellow", x: mobileGrid.cols / 2 + 1.3875 * mobileHouseScale - planterW / 2, y: mobileHouseY + 5.9 * mobileHouseScale, scale: mobileHouseScale },
   { sheet: "planterBlue", x: mobileGrid.cols / 2 + 2.1975 * mobileHouseScale - planterW / 2, y: mobileHouseY + 5.9 * mobileHouseScale, scale: mobileHouseScale },
 
-  {
-    sheet: "bunnyIdle",
-    // Centered on the path/house midpoint too (see above), standing on
-    // the visible stretch of road just past the house's bottom edge.
-    x: mobileCenterCol - 0.5,
-    y: mobileHouseBottom + 0.2,
-    row: 3,
-    animated: true,
-    fps: 6,
-    frameCount: 5,
-    alt: "Bunny standing on the road in front of the cottage",
-  },
+  // The bunny itself is the interactive BunnyRoutine component (see
+  // LandingScene.tsx), not a static DecorItem here, so it can respond to
+  // scroll/arrow-key input on touch devices too — see mobileBunnyHome
+  // below for where it starts.
 
   { sheet: "bushTree", x: mobileGrid.cols - 1.9, y: mobileHouseBottom + 0.5 },
 
@@ -376,3 +427,12 @@ export const mobileDecor: DecorItem[] = [
   { sheet: "grassTuft", x: mobileGrid.cols - 0.9, y: mobileHouseY + 1.5 * mobileHouseScale },
   { sheet: "flowerPurple", x: 0.4, y: mobileHouseBottom + 3.2 },
 ];
+
+// Obstacle boxes for each tier, computed once at module load (not inline
+// in LandingScene's JSX) so BunnyRoutine gets a stable array reference —
+// otherwise a new array every render would re-trigger its effect and
+// snap the bunny back to its starting position.
+export const desktopObstacles = sceneObstacles(desktopDecor, desktopBillboard);
+export const tabletWideObstacles = sceneObstacles(tabletWideDecor, desktopBillboard);
+export const tabletNarrowObstacles = sceneObstacles(tabletNarrowDecor, desktopBillboard);
+export const mobileObstacles = sceneObstacles(mobileDecor, mobileBillboard);
