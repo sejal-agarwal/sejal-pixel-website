@@ -28,7 +28,7 @@ export function Navbar() {
             <li key={item.href}>
               <a
                 href={item.href}
-                className="text-base font-semibold text-[var(--color-cream)]/90 transition-colors hover:text-[var(--color-cream)]"
+                className="border-b-2 border-transparent pb-0.5 text-base font-semibold text-[var(--color-cream)]/90 transition-colors hover:border-[var(--color-cream)] hover:text-[var(--color-cream)]"
               >
                 {item.label}
               </a>

@@ -1,7 +1,7 @@
 export const site = {
   name: "Sejal Agarwal",
   intro:
-    "Hi, I'm a Software & UI/UX engineer who turns complex workflows into delightful interfaces. Currently growing ideas in HCI research at the University of Waterloo. 🌱",
+    "Hi, I'm a Software & UI/UX engineer who turns complex workflows into delightful interfaces. Currently growing ideas in HCI research at the University of Waterloo 🌱",
   currently: "Currently: Research Intern @ Autodesk",
   resumeHref: "/Sejal_Resume.pdf",
   links: {
