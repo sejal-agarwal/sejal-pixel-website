@@ -9,7 +9,15 @@ type AnimatedSpriteProps = {
   sheet: SpriteSheet;
   /** Which row of the sheet to animate along (e.g. a direction). */
   row?: number;
-  /** Frames to cycle through, starting at column 0. Defaults to the whole row. */
+  /**
+   * Cycle through several rows in sequence instead of one (e.g. a
+   * watering-can animation that faces right, then left, to reach
+   * planters on both sides) — each row plays its full `frameCount`
+   * before advancing to the next, then loops back to the first.
+   * Overrides `row` when given.
+   */
+  rows?: number[];
+  /** Frames to cycle through per row, starting at column 0. Defaults to the whole row. */
   frameCount?: number;
   fps?: number;
   className?: string;
@@ -20,13 +28,15 @@ type AnimatedSpriteProps = {
 };
 
 /**
- * Loops through the columns of a sprite row using requestAnimationFrame,
- * so the frame rate stays independent of `--px` and works the same in
- * every browser. Respects prefers-reduced-motion by freezing on frame 0.
+ * Loops through the columns of a sprite row (or, with `rows`, through
+ * several rows in sequence) using requestAnimationFrame, so the frame
+ * rate stays independent of `--px` and works the same in every browser.
+ * Respects prefers-reduced-motion by freezing on frame 0.
  */
 export function AnimatedSprite({
   sheet,
   row = 0,
+  rows,
   frameCount,
   fps = 8,
   className,
@@ -34,13 +44,15 @@ export function AnimatedSprite({
   alt,
   playing = true,
 }: AnimatedSpriteProps) {
-  const count = frameCount ?? sheet.cols;
-  const [frame, setFrame] = useState(0);
+  const perRowCount = frameCount ?? sheet.cols;
+  const rowSequence = rows ?? [row];
+  const totalCount = perRowCount * rowSequence.length;
+  const [globalFrame, setGlobalFrame] = useState(0);
   const rafRef = useRef<number | null>(null);
   const lastTickRef = useRef(0);
 
   useEffect(() => {
-    if (!playing || count <= 1) return;
+    if (!playing || totalCount <= 1) return;
 
     const reduceMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
@@ -53,7 +65,7 @@ export function AnimatedSprite({
     const tick = (now: number) => {
       if (now - lastTickRef.current >= frameDuration) {
         lastTickRef.current = now;
-        setFrame((f) => (f + 1) % count);
+        setGlobalFrame((f) => (f + 1) % totalCount);
       }
       rafRef.current = requestAnimationFrame(tick);
     };
@@ -62,9 +74,12 @@ export function AnimatedSprite({
     return () => {
       if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
     };
-  }, [playing, fps, count]);
+  }, [playing, fps, totalCount]);
+
+  const currentRow = rowSequence[Math.floor(globalFrame / perRowCount)];
+  const col = globalFrame % perRowCount;
 
   return (
-    <Sprite sheet={sheet} col={frame} row={row} className={className} style={style} alt={alt} />
+    <Sprite sheet={sheet} col={col} row={currentRow} className={className} style={style} alt={alt} />
   );
 }

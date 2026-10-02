@@ -8,9 +8,12 @@
 
   /* Integer pixel-art scale: phones get 3x, tablets/laptops 4x, wide
      desktops 5x. Kept as a whole number so sprite edges stay crisp — see
-     the `.sprite` rule below. The landing scene's desktop/mobile path
-     layouts switch at the same 640px breakpoint via plain CSS (see
-     LandingScene), so there's no JS media-query hook to keep in sync. */
+     the `.sprite` rule below. The landing scene's desktop grid is 18
+     tiles wide, so at --px:4 it renders 1152px — the scene switches to
+     its compact "mobile" layout below Tailwind's xl (1280px) rather than
+     this 640px step, so the wide grid never renders in a viewport
+     narrower than it is (see LandingScene). There's no JS media-query
+     hook to keep in sync since both switches are plain CSS. */
   --px: 3;
 }
 

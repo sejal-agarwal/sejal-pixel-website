@@ -1,6 +1,8 @@
+import type { ReactNode } from "react";
 import { Sprite } from "@/components/sprite/Sprite";
 import { AnimatedSprite } from "@/components/sprite/AnimatedSprite";
 import { Billboard } from "@/components/landing/Billboard";
+import { BunnyRoutine } from "@/components/landing/BunnyRoutine";
 import { sheets, type SheetName } from "@/lib/sprites";
 import { resolvePathTile, toPathSet } from "@/lib/map/autotile";
 import {
@@ -8,6 +10,14 @@ import {
   desktopGrid,
   desktopDecor,
   desktopBillboard,
+  bunnyHome,
+  bunnyBillboardStop,
+  tabletWidePath,
+  tabletWideGrid,
+  tabletWideDecor,
+  tabletNarrowPath,
+  tabletNarrowGrid,
+  tabletNarrowDecor,
   mobilePath,
   mobileGrid,
   mobileDecor,
@@ -48,14 +58,39 @@ export function LandingScene() {
         grid={desktopGrid}
         decor={desktopDecor}
         billboard={desktopBillboard}
-        className="hidden sm:block"
-      />
+        className="hidden xl:block"
+      >
+        <BunnyRoutine home={bunnyHome} sign={bunnyBillboardStop} />
+      </SceneCanvas>
+      {/* Tablet, wide: same billboard+house composition as desktop, minus
+          the tree — see tabletWideDecor's doc in landingMap.ts. */}
+      <SceneCanvas
+        path={tabletWidePath}
+        grid={tabletWideGrid}
+        decor={tabletWideDecor}
+        billboard={desktopBillboard}
+        className="hidden lg:block xl:hidden"
+      >
+        <BunnyRoutine home={bunnyHome} sign={bunnyBillboardStop} />
+      </SceneCanvas>
+      {/* Tablet, narrow: minus the clothesline/corral/cow too — see
+          tabletNarrowDecor's doc. The last tier with the billboard
+          beside the house; below this it stacks above instead. */}
+      <SceneCanvas
+        path={tabletNarrowPath}
+        grid={tabletNarrowGrid}
+        decor={tabletNarrowDecor}
+        billboard={desktopBillboard}
+        className="hidden min-[840px]:block lg:hidden"
+      >
+        <BunnyRoutine home={bunnyHome} sign={bunnyBillboardStop} />
+      </SceneCanvas>
       <SceneCanvas
         path={mobilePath}
         grid={mobileGrid}
         decor={mobileDecor}
         billboard={mobileBillboard}
-        className="sm:hidden"
+        className="min-[840px]:hidden"
       />
     </section>
   );
@@ -67,18 +102,21 @@ function SceneCanvas({
   decor,
   billboard,
   className,
+  children,
 }: {
   path: TileCoord[];
   grid: PathGrid;
   decor: DecorItem[];
   billboard: { x: number; y: number; width: number };
   className?: string;
+  children?: ReactNode;
 }) {
   const pathSet = toPathSet(path);
   // Depth sort: items further down the scene (larger y) paint later, so
   // e.g. a tree's canopy can overlap something above it without the
-  // stacking order looking inverted.
-  const sortedDecor = [...decor].sort((a, b) => a.y - b.y);
+  // stacking order looking inverted. z is an explicit override for the
+  // rare item whose paint order can't just follow y — see DecorItem.z.
+  const sortedDecor = [...decor].sort((a, b) => (a.z ?? 0) - (b.z ?? 0) || a.y - b.y);
 
   return (
     <div
@@ -111,6 +149,8 @@ function SceneCanvas({
       ))}
 
       <Billboard x={billboard.x} y={billboard.y} width={billboard.width} />
+
+      {children}
     </div>
   );
 }
@@ -126,6 +166,7 @@ function DecorSprite({ item }: { item: DecorItem }) {
       <AnimatedSprite
         sheet={sheet}
         row={item.row ?? 0}
+        rows={item.rows}
         fps={item.fps}
         frameCount={item.frameCount}
         alt={item.alt}

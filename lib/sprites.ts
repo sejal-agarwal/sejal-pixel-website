@@ -39,11 +39,36 @@ export const sheets = {
   stump: { src: "/sprites/decor/stump.png", frameW: 24, frameH: 26, cols: 1, rows: 1 },
   lamp: { src: "/sprites/decor/lamp.png", frameW: 9, frameH: 18, cols: 1, rows: 1 },
   sign: { src: "/sprites/decor/sign.png", frameW: 14, frameH: 30, cols: 1, rows: 1 },
-  fenceCorral: { src: "/sprites/decor/fence-corral.png", frameW: 60, frameH: 56, cols: 1, rows: 1 },
-  flowerPurple: { src: "/sprites/decor/flower-purple.png", frameW: 11, frameH: 18, cols: 1, rows: 1 },
-  flowerWhite: { src: "/sprites/decor/flower-white.png", frameW: 26, frameH: 11, cols: 1, rows: 1 },
-  grassTuft: { src: "/sprites/decor/grass-tuft.png", frameW: 17, frameH: 12, cols: 1, rows: 1 },
+  // Re-cropped from the pack's Exterior_Tileset — the original crop of
+  // this file bundled a couple of stray, unrelated fence fragments from
+  // neighboring sheet cells along with the actual corral, and its inner
+  // decorative center post has been erased so the pen reads as open.
+  fenceCorral: { src: "/sprites/decor/fence-corral.png", frameW: 30, frameH: 40, cols: 1, rows: 1 },
+  // Re-cropped from the pack's Tileset_Floor_Detail — the original
+  // crops of flower-purple and flower-white each bundled a stray
+  // fragment from a neighboring sheet cell.
+  flowerPurple: { src: "/sprites/decor/flower-purple.png", frameW: 11, frameH: 12, cols: 1, rows: 1 },
+  flowerWhite: { src: "/sprites/decor/flower-white.png", frameW: 12, frameH: 10, cols: 1, rows: 1 },
+  grassTuft: { src: "/sprites/decor/grass-tuft.png", frameW: 14, frameH: 11, cols: 1, rows: 1 },
   cropGrown: { src: "/sprites/decor/crop-grown.png", frameW: 9, frameH: 9, cols: 1, rows: 1 },
+  // Tileset_Floor_Detail's scatter of small ground specks, for a bit of
+  // grass texture.
+  groundSpeckle: { src: "/sprites/decor/ground-speckle.png", frameW: 11, frameH: 12, cols: 1, rows: 1 },
+  // More Tileset_Floor_Detail pieces, picked via the Yard Decorator
+  // artifact tool (see the scatter block in landingMap.ts).
+  rockRound: { src: "/sprites/decor/rock-round.png", frameW: 10, frameH: 8, cols: 1, rows: 1 },
+  weedClumpLarge: { src: "/sprites/decor/weed-clump-large.png", frameW: 21, frameH: 8, cols: 1, rows: 1 },
+  weedClumpMedium: { src: "/sprites/decor/weed-clump-medium.png", frameW: 28, frameH: 13, cols: 1, rows: 1 },
+  grassRingA: { src: "/sprites/decor/grass-ring-a.png", frameW: 15, frameH: 13, cols: 1, rows: 1 },
+  flowerDotScatter: { src: "/sprites/decor/flower-dot-scatter.png", frameW: 11, frameH: 11, cols: 1, rows: 1 },
+  petalScatter: { src: "/sprites/decor/petal-scatter.png", frameW: 11, frameH: 13, cols: 1, rows: 1 },
+  dashScatter: { src: "/sprites/decor/dash-scatter.png", frameW: 14, frameH: 12, cols: 1, rows: 1 },
+  // Exterior_Tileset's flower planter boxes.
+  planterYellow: { src: "/sprites/decor/planter-yellow.png", frameW: 14, frameH: 12, cols: 1, rows: 1 },
+  planterBlue: { src: "/sprites/decor/planter-blue.png", frameW: 14, frameH: 12, cols: 1, rows: 1 },
+  // Exterior_Tileset's laundry line, with a shirt, shorts and a towel
+  // already strung up.
+  clothesline: { src: "/sprites/decor/clothesline.png", frameW: 40, frameH: 19, cols: 1, rows: 1 },
 
   chickenIdle: {
     src: "/sprites/animals/chicken/Chicken_Idle.png",
@@ -73,6 +98,13 @@ export const sheets = {
     frameH: 48,
     cols: 8,
     rows: 4,
+  },
+  bunnyWatering: {
+    src: "/sprites/characters/bunny/Bunny_WateringCan.png",
+    frameW: 48,
+    frameH: 48,
+    cols: 9,
+    rows: 4, // same row order as bunnyIdle — row 3 is front-facing
   },
   campfire: {
     src: "/sprites/objects/Campfire.png",
