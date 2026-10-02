@@ -8,13 +8,21 @@
 
   /* Integer pixel-art scale: phones get 3x, tablets/laptops 4x, wide
      desktops 5x. Kept as a whole number so sprite edges stay crisp — see
-     the `.sprite` rule below. The landing scene's desktop grid is 18
-     tiles wide, so at --px:4 it renders 1152px — the scene switches to
-     its compact "mobile" layout below Tailwind's xl (1280px) rather than
-     this 640px step, so the wide grid never renders in a viewport
-     narrower than it is (see LandingScene). There's no JS media-query
-     hook to keep in sync since both switches are plain CSS. */
+     the `.sprite` rule below. This 640px step doesn't line up with the
+     landing scene's own breakpoints (840/1024/1280, see LandingScene and
+     landingMap.ts) — those are chosen so each tier's canvas actually fits
+     a viewport at whatever --px is in force there, not to match this
+     scale jump. There's no JS media-query hook to keep any of it in sync
+     since it's all plain CSS. */
   --px: 3;
+
+  /* How many tile rows tall the landing section is — see LandingScene's
+     height calc. Matches desktopGrid.visibleRows in landingMap.ts (also
+     shared by tabletWideGrid/tabletNarrowGrid); the stacked mobile
+     layout is shorter (see mobileGrid's doc), so it gets its own value
+     below at the same 840px breakpoint LandingScene's className split
+     uses. Retune both together if either grid's visibleRows changes. */
+  --scene-rows: 15;
 }
 
 @media (min-width: 640px) {
@@ -26,6 +34,12 @@
 @media (min-width: 1600px) {
   :root {
     --px: 5;
+  }
+}
+
+@media (max-width: 839px) {
+  :root {
+    --scene-rows: 13;
   }
 }
 

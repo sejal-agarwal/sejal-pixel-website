@@ -26,10 +26,10 @@ export function Billboard({ x, y, width }: { x: number; y: number; width: number
           boxShadow: "inset 0 0 0 3px #c99b66",
         }}
       >
-        <p className="mb-1 font-[family-name:var(--font-pixel)] text-xs text-[#7d4b33] sm:text-sm">
+        <p className="mb-1.5 font-[family-name:var(--font-pixel)] text-sm text-[#7d4b33] sm:text-base">
           About me
         </p>
-        <p className="font-[family-name:var(--font-body)] text-[11px] leading-snug font-semibold text-[#4a3826] sm:text-sm">
+        <p className="font-[family-name:var(--font-body)] text-sm leading-snug font-semibold text-[#4a3826] sm:text-base">
           {site.intro}
         </p>
       </div>

@@ -48,9 +48,13 @@ export function LandingScene() {
         // The canvases below are absolutely positioned (so they can
         // center themselves past the viewport edge without margin:auto
         // collapsing to 0 when they're wider than the viewport — see
-        // SceneCanvas), which takes them out of flow. Both grids share
-        // the same visibleRows, so either works here to size the section.
-        height: `calc(${desktopGrid.visibleRows} * var(--px) * ${TILE}px)`,
+        // SceneCanvas), which takes them out of flow, so the section needs
+        // its own height to reserve the right amount of space in the
+        // page. desktop/tabletWide/tabletNarrowGrid all share visibleRows
+        // (15), but the stacked mobile layout is shorter (13, see
+        // mobileGrid's doc) — --scene-rows (globals.css) switches between
+        // them at the same 840px breakpoint the className splits below do.
+        height: `calc(var(--scene-rows, ${desktopGrid.visibleRows}) * var(--px) * ${TILE}px)`,
       }}
     >
       <SceneCanvas
@@ -158,7 +162,13 @@ function SceneCanvas({
 function DecorSprite({ item }: { item: DecorItem }) {
   const sheet = sheets[item.sheet as SheetName];
   const style = {
-    transform: `translate(calc(${item.x} * var(--px) * ${TILE}px), calc(${item.y} * var(--px) * ${TILE}px))`,
+    // Shrinking (item.scale) is appended to the same transform rather
+    // than set separately, since a style object only gets one transform
+    // — and anchored top-center (not the default 50% 50%) so x/y still
+    // mark its top edge and horizontal center at any scale. See
+    // DecorItem.scale's doc.
+    transform: `translate(calc(${item.x} * var(--px) * ${TILE}px), calc(${item.y} * var(--px) * ${TILE}px))${item.scale ? ` scale(${item.scale})` : ""}`,
+    transformOrigin: item.scale ? "top" : undefined,
   };
 
   if (item.animated) {

@@ -47,12 +47,19 @@ export const desktopGrid: PathGrid = { cols: 18, visibleRows: 15 };
 // to this stacked layout; 840px is where even that pared-down,
 // house-plus-billboard-only composition stops fitting — see
 // tabletNarrowGrid's doc.)
+// mobilePath is defined further down, near mobileDecor — unlike the
+// other tiers' paths, it has to be positioned relative to mobileHouseY
+// (itself computed below), not just mobileCenterCol, so it actually
+// lines up with the shrunk house's door instead of the fixed row range
+// the other grids use.
 const mobileCenterCol = 3;
-export const mobilePath: TileCoord[] = rect(mobileCenterCol, 2, 2, 10);
-// A few rows taller than desktop strictly needs, but both grids share
-// visibleRows (see LandingScene) and mobile's stacked layout — house,
-// bunny, sign, billboard, all in a single column — needs the room.
-export const mobileGrid: PathGrid = { cols: 8, visibleRows: 15 };
+// Shorter than the other grids' 15 — this one doesn't share visibleRows
+// with them (see LandingScene's responsive --scene-rows, set in
+// globals.css), since the stacked layout's content is genuinely shorter
+// once the house is scaled down (see mobileHouseScale below): billboard
+// to the last flower bottoms out around row 11-12. Retune together with
+// mobileHouseScale/mobileHouseY if the stack's content changes.
+export const mobileGrid: PathGrid = { cols: 8, visibleRows: 13 };
 
 export type DecorItem = {
   sheet: string;
@@ -76,12 +83,23 @@ export type DecorItem = {
   alt?: string;
   /** Use smooth (not pixelated) scaling — for photo-derived sprites. */
   smooth?: boolean;
+  /**
+   * Shrinks the sprite in place (CSS transform, not a different tile
+   * size), anchored to its top-center so `x`/`y` still mark where its
+   * top edge and horizontal center land — see DecorSprite. Leave unset
+   * for native size.
+   */
+  scale?: number;
 };
 
 // House sprite is 84x96px (5.25 x 6 tiles); centered over the
 // 2-tile-wide path with its base a little past the path's start row.
 const houseW = 84 / 16;
 const houseH = 96 / 16;
+// Planter sprites (planterYellow/planterBlue) are both 14x12px — used by
+// mobileDecor below to convert the desktop planters' left-edge x's into
+// center offsets (see its comment there).
+const planterW = 14 / 16;
 
 // Dropped a tile below the canvas top so the roof clears the sticky
 // navbar instead of touching it. Everything else that's positioned
@@ -223,14 +241,19 @@ export const tabletNarrowDecor: DecorItem[] = desktopDecor.filter(
 // below), so it stacks above the house instead — the first thing you
 // see, rather than something you'd have to scroll the bunny's yard to
 // find.
-const billboardW = 5.5;
+// Widened (and nudged left) from the original 5.5 @ x:0.4 now that the
+// type is bigger — still capped by the gap to the house's left edge
+// (houseX, 6.375): x + width must clear it by at least ~0.35 tiles, so
+// this is close to the widest this can go without shifting the house
+// over too (desktopCenterCol).
+const billboardW = 5.7;
 // The board's own height (padding + heading + body copy) is content-
 // driven, not tile-scaled, so this is measured against a render rather
 // than computed — retune if the copy or type scale changes enough to
 // throw it off.
-const desktopBillboardHeightTiles = 2.36;
+const desktopBillboardHeightTiles = 2.6;
 export const desktopBillboard = {
-  x: 0.4,
+  x: 0.3,
   y: houseY + houseH - desktopBillboardHeightTiles,
   width: billboardW,
 };
@@ -244,28 +267,51 @@ export const desktopBillboard = {
 // flowers would send it past them onto the grass beyond.
 export const bunnyHome = { x: desktopCenterCol - 0.5, y: houseY + houseH + 0.1 };
 export const bunnyBillboardStop = { x: 2.75, y: 5.9 };
-const mobileBillboardW = mobileGrid.cols - 1.5;
+// Margin trimmed from 1.5 to 0.8 (0.4 a side) now that the type is
+// bigger, so the board claims more of the narrow grid instead of
+// shrinking further inside it.
+const mobileBillboardW = mobileGrid.cols - 0.8;
 // The board's own height on the mobile/tablet stack — narrower text
 // column than desktop's, but wider than you'd think from the billboard's
 // tile width since the intro copy is the same length; measured against
 // a render like desktopBillboardHeightTiles above, so retune if the
 // copy or type scale changes enough to throw it off.
-const mobileBillboardHeightTiles = 2.4;
+const mobileBillboardHeightTiles = 2.7;
+// Right under the navbar — much tighter than desktop's houseY clearance,
+// since there's no roof to clear here, just the board itself.
+const mobileTopGap = 0.3;
 export const mobileBillboard = {
   x: (mobileGrid.cols - mobileBillboardW) / 2,
-  // Leads the stack, at the same navbar-clearance offset the house's
-  // roof uses on desktop (see houseY) — everything below (house, bunny,
-  // tree, flowers) is pushed down by the board's own height to make
-  // room, via mobileHouseY below.
-  y: houseY,
+  y: mobileTopGap,
   width: mobileBillboardW,
 };
 
 // Everything below the billboard on the mobile/tablet stack hangs off
-// this instead of houseY directly, so the whole yard shifts down as a
-// unit to clear the board above it. 0.6 is breathing room for the
-// board's support posts, which poke out a little below the board itself.
-const mobileHouseY = houseY + mobileBillboardHeightTiles + 0.6;
+// this, so the whole yard shifts down as a unit to clear the board
+// above it. 0.6 is breathing room for the board's support posts, which
+// poke out a little below the board itself.
+const mobileHouseY = mobileTopGap + mobileBillboardHeightTiles + 0.6;
+
+// The house is scaled down (not just moved) on the mobile stack — full
+// size it was the single biggest thing on the screen, crowding out the
+// banner and the bunny below it. Shrunk in place via DecorSprite's
+// `scale`, anchored to its own top-center (see DecorItem.scale) so the
+// values above still mark where it sits — a scaled item's effective
+// footprint is houseH * mobileHouseScale, not houseH, which is what
+// everything below (bunny, tree, flowers) measures off of.
+const mobileHouseScale = 0.6;
+const mobileHouseBottom = mobileHouseY + houseH * mobileHouseScale;
+
+// The road: starts a row above the house's (scaled) bottom edge, so its
+// top tile is mostly hidden under the house art and only peeks out right
+// at the door — the same "painted after the path, so it covers it"
+// trick the desktop/tablet tiers use (see SceneCanvas) — then runs on
+// past the house for the bunny to stand on, in front of it rather than
+// beside it. Path tiles are integer rows for the autotiler (unlike the
+// fractional decor positions above), so this rounds down to the nearest
+// one rather than tracking mobileHouseBottom exactly.
+const mobilePathStartRow = Math.floor(mobileHouseBottom) - 1;
+export const mobilePath: TileCoord[] = rect(mobileCenterCol, mobilePathStartRow, 2, 4);
 
 // On the narrow mobile grid the house nearly fills the width, so there's
 // no room to flank it with trees the way the desktop layout does —
@@ -273,27 +319,60 @@ const mobileHouseY = houseY + mobileBillboardHeightTiles + 0.6;
 export const mobileDecor: DecorItem[] = [
   {
     sheet: "house",
+    // Centered the same way the path above is (mobileCenterCol + 1 ==
+    // mobileGrid.cols / 2) — (cols - houseW) / 2 lands on that same
+    // midpoint, and the top-center scale anchor (see DecorItem.scale)
+    // keeps it there at any scale.
     x: (mobileGrid.cols - houseW) / 2,
     y: mobileHouseY,
+    scale: mobileHouseScale,
     alt: "A small cottage below the sign",
   },
+
+  // The same flower boxes flanking the door on desktop (see
+  // desktopDecor), scaled and repositioned to flank this smaller house.
+  // Unlike the house/path above, this isn't just "scale the desktop x":
+  // DecorSprite's scale anchor is top-CENTER, so what has to land at
+  // `houseCenterX + scale * centerOffset` is each planter's own center
+  // (x + planterW / 2), not its left edge — and planterW / 2 is a fixed
+  // offset from that center regardless of scale (shrinking happens
+  // around the center, it doesn't move it). Scaling planterW / 2 along
+  // with centerOffset (as an earlier version of this did, by scaling
+  // desktop's left-edge x's wholesale) pushes the left pair in and the
+  // right pair out — the house's own left-edge x above gets away with
+  // the simpler version only because a single item's own half-width
+  // cancels out against DecorSprite's center anchor.
+  //
+  // centerOffset is each desktop planter's (x + planterW / 2) minus the
+  // house's own center (desktopCenterCol + 1 = 9); y is 5.9 tiles below
+  // the house's top (houseY), scaled the same simple way since height
+  // isn't split across a center the way width is.
+  { sheet: "planterBlue", x: mobileGrid.cols / 2 + -2.1925 * mobileHouseScale - planterW / 2, y: mobileHouseY + 5.9 * mobileHouseScale, scale: mobileHouseScale },
+  { sheet: "planterYellow", x: mobileGrid.cols / 2 + -1.3825 * mobileHouseScale - planterW / 2, y: mobileHouseY + 5.9 * mobileHouseScale, scale: mobileHouseScale },
+  { sheet: "planterYellow", x: mobileGrid.cols / 2 + 1.3875 * mobileHouseScale - planterW / 2, y: mobileHouseY + 5.9 * mobileHouseScale, scale: mobileHouseScale },
+  { sheet: "planterBlue", x: mobileGrid.cols / 2 + 2.1975 * mobileHouseScale - planterW / 2, y: mobileHouseY + 5.9 * mobileHouseScale, scale: mobileHouseScale },
+
   {
     sheet: "bunnyIdle",
+    // Centered on the path/house midpoint too (see above), standing on
+    // the visible stretch of road just past the house's bottom edge.
     x: mobileCenterCol - 0.5,
-    y: mobileHouseY + houseH + 0.1,
+    y: mobileHouseBottom + 0.2,
     row: 3,
     animated: true,
     fps: 6,
     frameCount: 5,
-    alt: "Bunny idling on the grass outside the cottage",
+    alt: "Bunny standing on the road in front of the cottage",
   },
 
-  { sheet: "bushTree", x: mobileGrid.cols - 1.9, y: mobileHouseY + houseH + 0.4 },
+  { sheet: "bushTree", x: mobileGrid.cols - 1.9, y: mobileHouseBottom + 0.5 },
 
   // A light scatter of flowers and weeds — much sparser than desktop
   // since there's little empty grass to work with, tucked into the
-  // narrow margins beside the house and around the bunny.
-  { sheet: "flowerWhite", x: 0.3, y: mobileHouseY + 2 },
-  { sheet: "grassTuft", x: mobileGrid.cols - 0.9, y: mobileHouseY + 1.5 },
-  { sheet: "flowerPurple", x: 0.4, y: mobileHouseY + houseH + 3.2 },
+  // narrow margins beside the house and around the bunny. The two
+  // beside the house are at the same fraction down its (now shorter)
+  // height as they were before it shrank.
+  { sheet: "flowerWhite", x: 0.3, y: mobileHouseY + 2 * mobileHouseScale },
+  { sheet: "grassTuft", x: mobileGrid.cols - 0.9, y: mobileHouseY + 1.5 * mobileHouseScale },
+  { sheet: "flowerPurple", x: 0.4, y: mobileHouseBottom + 3.2 },
 ];
